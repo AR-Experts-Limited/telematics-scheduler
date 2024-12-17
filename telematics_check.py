@@ -11,6 +11,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.webdriver import Options
 from selenium.common.exceptions import NoSuchElementException, TimeoutException, WebDriverException
+from selenium.webdriver.chrome.webdriver import Options
 
 # Set your credentials
 URL = "https://telematics.arexperts.co.uk/"
@@ -25,7 +26,15 @@ SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
 
 # Path to ChromeDriver
+
+# Initialize Chrome options
+options = Options()
+options.add_argument("--start-maximized")
+options.add_argument("--headless")  # Ensure it runs in headless mode on CI/CD environments
+
+# Initialize the driver
 driver = webdriver.Chrome(options=options)
+
 
 # Initialize Selenium browser
 options = Options()
