@@ -25,7 +25,7 @@ SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
 
 # Path to ChromeDriver
-driver_path = r"E:\AR\chromedriver-win64\chromedriver-win64\chromedriver.exe"
+driver = webdriver.Chrome(options=options)
 
 # Initialize Selenium browser
 options = Options()
@@ -129,8 +129,9 @@ def check_telematics_site(url, username, password):
         print(f"Login Status: {login_status}")
 
         # Generate a timestamped filename
-        logs_dir = r"E:\AR\logs"
-        os.makedirs(logs_dir, exist_ok=True)
+        # Generate a timestamped filename
+        logs_dir = os.path.join(os.getcwd(), "logs")
+        os.makedirs(logs_dir, exist_ok=True)  # Ensure the logs directory exists
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         filename = os.path.join(logs_dir, f"console_logs_{timestamp}.txt")
 
