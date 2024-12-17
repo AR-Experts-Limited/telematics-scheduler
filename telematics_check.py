@@ -21,7 +21,7 @@ PASSWORD = "OutOfHours123"
 # Email Configuration
 SENDER_EMAIL = "artestingdriver@gmail.com"
 SENDER_PASSWORD = "chic kqpw ekxm kzyo"
-RECIPIENT_EMAIL = "joeteo1999@gmail.com"
+RECIPIENT_EMAIL = "telematics@arexperts.co.uk"
 SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
 
