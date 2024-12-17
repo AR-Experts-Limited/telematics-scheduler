@@ -7,7 +7,7 @@ on:
 
 jobs:
   run-script:
-    runs-on: ubuntu-latest  # GitHub-hosted Linux runner
+    runs-on: ubuntu-latest  # GitHub-hosted runner
 
     steps:
       # Step 1: Checkout repository
@@ -39,3 +39,10 @@ jobs:
           SENDER_PASSWORD: ${{ secrets.SENDER_PASSWORD }}
           RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
         run: python telematics_check.py
+
+      # Step 6: Upload logs and screenshots as artifacts
+      - name: Upload logs and screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: telematics-logs
+          path: logs/
