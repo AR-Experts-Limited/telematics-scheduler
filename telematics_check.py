@@ -8,8 +8,6 @@ from email.mime.base import MIMEBase
 from email import encoders
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.webdriver import Options
 from selenium.common.exceptions import NoSuchElementException, TimeoutException, WebDriverException
 from selenium.webdriver.chrome.webdriver import Options
 
@@ -25,23 +23,15 @@ RECIPIENT_EMAIL = "telematics@arexperts.co.uk"
 SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
 
-# Path to ChromeDriver
-
 # Initialize Chrome options
 options = Options()
 options.add_argument("--start-maximized")
 options.add_argument("--headless")  # Ensure it runs in headless mode on CI/CD environments
+options.add_argument("--no-sandbox")  # Required for running Chrome in Linux containers
+options.add_argument("--disable-dev-shm-usage")  # Prevents shared memory issues
 
-# Initialize the driver
+# Initialize the Chrome driver
 driver = webdriver.Chrome(options=options)
-
-
-# Initialize Selenium browser
-options = Options()
-options.add_argument("--start-maximized")
-options.set_capability("goog:loggingPrefs", {"browser": "ALL"})  # Enable browser logs
-service = Service(driver_path)
-driver = webdriver.Chrome(service=service, options=options)
 
 def send_email(subject, body, attachment_path=None):
     """Send an email with the given subject, body, and optional attachment."""
