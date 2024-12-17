@@ -28,9 +28,9 @@ SMTP_PORT = 587
 # Initialize Chrome options
 options = Options()
 options.add_argument("--start-maximized")
-options.add_argument("--headless")  # Ensure it runs in headless mode on CI/CD environments
-options.add_argument("--no-sandbox")  # Required for running Chrome in Linux containers
-options.add_argument("--disable-dev-shm-usage")  # Prevents shared memory issues
+options.add_argument("--headless")  # Headless mode for CI/CD
+options.add_argument("--no-sandbox")
+options.add_argument("--disable-dev-shm-usage")
 options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36")
 
 # Initialize the Chrome driver
@@ -59,15 +59,14 @@ def send_email(subject, body, attachment_path=None):
         server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
         server.starttls()
         server.login(SENDER_EMAIL, SENDER_PASSWORD)
-
         server.send_message(msg)
         server.quit()
-        print("Email sent successfully with logs.")
+        print("Email sent successfully.")
     except Exception as e:
         print(f"Failed to send email: {e}")
 
 def save_logs_to_file(logs, status, filename):
-    """Save login status and browser logs to a text file with formatted timestamps."""
+    """Save login status and browser logs to a text file."""
     with open(filename, "w", encoding="utf-8") as file:
         current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         file.write(f"Log Time: {current_time}\n")
@@ -77,57 +76,34 @@ def save_logs_to_file(logs, status, filename):
             readable_time = datetime.datetime.fromtimestamp(log['timestamp'] / 1000).strftime("%Y-%m-%d %H:%M:%S")
             file.write(f"{readable_time} - {log['message']}\n")
 
-def check_console_for_errors(browser_logs):
-    """Check console logs for 400 errors or User Data: undefined."""
-    for log in browser_logs:
-        if "400" in log["message"] or "User Data: undefined" in log["message"]:
-            return True
-    return False
-
-def check_login_failure():
-    """Check for login failure message on the page."""
-    try:
-        failure_message = driver.find_element(By.CLASS_NAME, "error-message")
-        return failure_message.is_displayed()
-    except NoSuchElementException:
-        return False
-
 def check_telematics_site(url, username, password):
     try:
         driver.get(url)
 
-        # Wait for fields to load
+        # Wait for login elements
         username_input = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, "email")))
         password_input = driver.find_element(By.NAME, "password")
         login_button = driver.find_element(By.CLASS_NAME, "Login_btn__CSBJW")
 
-        # Debug: Check for hidden fields
-        hidden_inputs = driver.find_elements(By.TAG_NAME, "input")
-        for field in hidden_inputs:
-            if field.get_attribute("type") == "hidden":
-                print(f"Hidden field: Name={field.get_attribute('name')}, Value={field.get_attribute('value')}")
-
-        # Enter credentials and submit
+        # Enter credentials and submit form
         username_input.send_keys(username)
         password_input.send_keys(password)
-        driver.execute_script("arguments[0].click();", login_button)  # JavaScript click
+        driver.execute_script("arguments[0].click();", login_button)  # Simulate button click
 
-        # Wait for response
-        time.sleep(5)
-        browser_logs = driver.get_log("browser")
-        login_failed = check_login_failure() or check_console_for_errors(browser_logs)
-        user_data_found = any("User Data" in log["message"] for log in browser_logs)
+        # Wait for post-login element (userHome)
+        try:
+            WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, "userHome")))
+            login_status = "SUCCESS"
+        except TimeoutException:
+            login_status = "FAILURE"
 
-        # Determine login status
-        login_status = "SUCCESS" if user_data_found else "FAILURE"
-        print(f"Login Status: {login_status}")
-
-        # Save logs and take a screenshot
+        # Generate logs and screenshot
         logs_dir = os.path.join(os.getcwd(), "logs")
         os.makedirs(logs_dir, exist_ok=True)
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         log_file = os.path.join(logs_dir, f"console_logs_{timestamp}.txt")
         screenshot_path = os.path.join(logs_dir, f"login_failure_{timestamp}.png")
+        browser_logs = driver.get_log("browser")
         save_logs_to_file(browser_logs, login_status, log_file)
 
         if login_status == "FAILURE":
