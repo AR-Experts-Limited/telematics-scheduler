@@ -42,7 +42,8 @@ jobs:
 
       # Step 6: Upload logs and screenshots as artifacts
       - name: Upload logs and screenshots
+        if: failure()  # This runs only if the previous step fails
         uses: actions/upload-artifact@v4
         with:
-          name: telematics-logs
+          name: telematics-logs-and-screenshots
           path: logs/
