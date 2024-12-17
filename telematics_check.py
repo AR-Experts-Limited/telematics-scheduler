@@ -14,7 +14,7 @@ from selenium.webdriver.chrome.webdriver import Options
 # Set your credentials
 URL = "https://telematics.arexperts.co.uk/"
 USERNAME = "outofhours@gmail.com"
-PASSWORD = "OutOfHours12"
+PASSWORD = "OutOfHours123"
 
 # Email Configuration
 SENDER_EMAIL = "artestingdriver@gmail.com"
